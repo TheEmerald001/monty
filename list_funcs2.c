@@ -2,139 +2,97 @@
 #include "lists.h"
 
 /**
- * sub_handler - handles the sub instruction
- * @stack: double pointer to the stack to push to
- * @line_number: number of the line in the file
+ * insert_dnodeint_at_index - inserts a node at a given index
+ * in a doubly linked list
+ * @h: double pointer to the list
+ * @idx: index of the node to insert
+ * @n: data to insert
+ *
+ * Return: address of the new node, or NULL if it failed
  */
-void sub_handler(stack_t **stack, unsigned int line_number)
+dlistint_t *insert_dnodeint_at_index(dlistint_t **h, unsigned int idx, int n)
 {
-	int sub = 0;
-	stack_t *node = NULL;
-	stack_t *node_0 = get_dnodeint_at_index(*stack, 0);
-	stack_t *node_1 = get_dnodeint_at_index(*stack, 1);
+	unsigned int i;
+	dlistint_t *new;
+	dlistint_t *temp = *h;
 
-	if (dlistint_len(*stack) < 2)
+	if (idx == 0)
+		return (add_dnodeint(h, n));
+
+	for (i = 0; temp && i < idx; i++)
 	{
-		dprintf(STDERR_FILENO, SUB_FAIL, line_number);
-		free_all(1);
-		exit(EXIT_FAILURE);
+		if (i == idx - 1)
+		{
+			if (temp->next == NULL)
+				return (add_dnodeint_end(h, n));
+			new = malloc(sizeof(dlistint_t));
+			if (!new || !h)
+				return (NULL);
+			new->n = n;
+			new->next = NULL;
+			new->next = temp->next;
+			new->prev = temp;
+			temp->next->prev = new;
+			temp->next = new;
+			return (new);
+		}
+		else
+			temp = temp->next;
 	}
 
-	sub = node_1->n - node_0->n;
-	delete_dnodeint_at_index(stack, 0);
-	delete_dnodeint_at_index(stack, 0);
-	node = add_dnodeint(stack, sub);
-	if (!node)
-	{
-		dprintf(STDERR_FILENO, MALLOC_FAIL);
-		free_all(1);
-		exit(EXIT_FAILURE);
-	}
+	return (NULL);
 }
 
 /**
- * div_handler - handles the div instruction
- * @stack: double pointer to the stack to push to
- * @line_number: number of the line in the file
+ * add_dnodeint_end - adds a new node at the end of a doubly linked list
+ * @head: double pointer to the list
+ * @n: data to insert in the new node
+ *
+ * Return: the address of the new element, or NULL if it failed
  */
-void div_handler(stack_t **stack, unsigned int line_number)
+dlistint_t *add_dnodeint_end(dlistint_t **head, const int n)
 {
-	int div = 0;
-	stack_t *node = NULL;
-	stack_t *node_0 = get_dnodeint_at_index(*stack, 0);
-	stack_t *node_1 = get_dnodeint_at_index(*stack, 1);
+	dlistint_t *new;
+	dlistint_t *temp = *head;
 
-	if (dlistint_len(*stack) < 2)
+	if (!head)
+		return (NULL);
+
+	new = malloc(sizeof(dlistint_t));
+	if (!new)
+		return (NULL);
+
+	new->n = n;
+	new->next = NULL;
+
+	if (*head == NULL)
 	{
-		dprintf(STDERR_FILENO, DIV_FAIL, line_number);
-		free_all(1);
-		exit(EXIT_FAILURE);
+		new->prev = NULL;
+		*head = new;
+		return (new);
 	}
 
-	if (node_0->n == 0)
-	{
-		dprintf(STDERR_FILENO, DIV_ZERO, line_number);
-		free_all(1);
-		exit(EXIT_FAILURE);
-	}
+	while (temp->next)
+		temp = temp->next;
 
-	div = node_1->n / node_0->n;
-	delete_dnodeint_at_index(stack, 0);
-	delete_dnodeint_at_index(stack, 0);
-	node = add_dnodeint(stack, div);
-	if (!node)
-	{
-		dprintf(STDERR_FILENO, MALLOC_FAIL);
-		free_all(1);
-		exit(EXIT_FAILURE);
-	}
+	temp->next = new;
+	new->prev = temp;
+
+	return (new);
 }
 
 /**
- * mul_handler - handles the mul instruction
- * @stack: double pointer to the stack to push to
- * @line_number: number of the line in the file
+ * free_dlistint - frees a doubly linked list
+ * @head: pointer to the list to free
  */
-void mul_handler(stack_t **stack, unsigned int line_number)
+void free_dlistint(dlistint_t *head)
 {
-	int mul = 0;
-	stack_t *node = NULL;
-	stack_t *node_0 = get_dnodeint_at_index(*stack, 0);
-	stack_t *node_1 = get_dnodeint_at_index(*stack, 1);
+	dlistint_t *temp;
 
-	if (dlistint_len(*stack) < 2)
+	while (head)
 	{
-		dprintf(STDERR_FILENO, MUL_FAIL, line_number);
-		free_all(1);
-		exit(EXIT_FAILURE);
-	}
-
-	mul = node_1->n * node_0->n;
-	delete_dnodeint_at_index(stack, 0);
-	delete_dnodeint_at_index(stack, 0);
-	node = add_dnodeint(stack, mul);
-	if (!node)
-	{
-		dprintf(STDERR_FILENO, MALLOC_FAIL);
-		free_all(1);
-		exit(EXIT_FAILURE);
-	}
-}
-
-/**
- * mod_handler - handles the mod instruction
- * @stack: double pointer to the stack to push to
- * @line_number: number of the line in the file
- */
-void mod_handler(stack_t **stack, unsigned int line_number)
-{
-	int mod = 0;
-	stack_t *node = NULL;
-	stack_t *node_0 = get_dnodeint_at_index(*stack, 0);
-	stack_t *node_1 = get_dnodeint_at_index(*stack, 1);
-
-	if (dlistint_len(*stack) < 2)
-	{
-		dprintf(STDERR_FILENO, MOD_FAIL, line_number);
-		free_all(1);
-		exit(EXIT_FAILURE);
-	}
-
-	if (node_0->n == 0)
-	{
-		dprintf(STDERR_FILENO, DIV_ZERO, line_number);
-		free_all(1);
-		exit(EXIT_FAILURE);
-	}
-
-	mod = node_1->n % node_0->n;
-	delete_dnodeint_at_index(stack, 0);
-	delete_dnodeint_at_index(stack, 0);
-	node = add_dnodeint(stack, mod);
-	if (!node)
-	{
-		dprintf(STDERR_FILENO, MALLOC_FAIL);
-		free_all(1);
-		exit(EXIT_FAILURE);
+		temp = head->next;
+		free(head);
+		head = temp;
 	}
 }
