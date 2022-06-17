@@ -7,6 +7,7 @@
  *
  * Return: pointer to the selected function, or NULL on failure
  */
+
 void (*get_func(char **parsed))(stack_t **, unsigned int)
 {
 	instruction_t func_arr[] = {
